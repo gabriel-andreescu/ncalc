@@ -75,5 +75,25 @@ expression.EvaluateFunction += delegate(string name, FunctionEventArgs args)
 };
 ```
 
+## Function Names
+A function name is made of letters, digits and underscores. Set
+<xref:NCalc.LogicalExpressionParserOptions.FunctionNameCharacters> to allow more characters inside a name, such as
+dots for qualified names. They cannot start or end the name.
+
+```csharp
+var configuration = new ExpressionConfiguration
+{
+    Parsing = new LogicalExpressionParserOptions
+    {
+        FunctionNameCharacters = ".-"
+    }
+};
+
+var expression = new Expression("example-mod.season() == 'autumn'", configuration);
+```
+
+Only a name followed by a parenthesis is read this way. With `-` allowed, `a-b(1)` calls `a-b`, while `a-b` and
+`a - b(1)` remain subtractions.
+
 ## Case Sensitivity
 See [case_sensitivity](../evaluation/case_sensitivity.md) for more info.

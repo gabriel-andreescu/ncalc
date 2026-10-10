@@ -236,4 +236,38 @@ public class ParserTests
 
         await Assert.That(expression.HasErrors(CancellationToken.None)).IsTrue();
     }
+
+    [Test]
+    [Arguments("owner.name()", "owner.name")]
+    [Arguments("example-mod.season()", "example-mod.season")]
+    [Arguments("a.b-c.d(1)", "a.b-c.d")]
+    public async Task ShouldCallFunctionNamesWithConfiguredCharacters(string source, string name)
+    {
+        var options = new LogicalExpressionParserOptions { FunctionNameCharacters = ".-" };
+        var expression = new Expression(LogicalExpressionFactory.Create(source, options, cancellationToken: CancellationToken.None));
+        expression.EvaluateFunction += (called, args) => args.Result = called;
+
+        await Assert.That(expression.Evaluate(CancellationToken.None)).IsEqualTo(name);
+    }
+
+    [Test]
+    [Arguments("a-b")]
+    [Arguments("a-(b)")]
+    [Arguments("a - b")]
+    public async Task ShouldKeepSubtractionWhenFunctionNamesAllowDashes(string source)
+    {
+        var options = new LogicalExpressionParserOptions { FunctionNameCharacters = ".-" };
+        var expression = new Expression(LogicalExpressionFactory.Create(source, options, cancellationToken: CancellationToken.None));
+        expression.Parameters["a"] = 3;
+        expression.Parameters["b"] = 1;
+
+        await Assert.That(expression.Evaluate(CancellationToken.None)).IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task ShouldRejectQualifiedFunctionNamesByDefault()
+    {
+        Assert.Throws<NCalcParserException>(() =>
+            LogicalExpressionFactory.Create("owner.name()", new LogicalExpressionParserOptions(), cancellationToken: CancellationToken.None));
+    }
 }

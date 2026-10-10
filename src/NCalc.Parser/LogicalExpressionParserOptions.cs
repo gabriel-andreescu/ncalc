@@ -16,6 +16,14 @@ public sealed class LogicalExpressionParserOptions
     public bool DisallowSingleEquals { get; init; }
 
     /// <summary>
+    /// Characters a function name may contain besides letters, digits and underscores, such as
+    /// <c>.</c> for qualified names like <c>owner.name()</c>. They cannot start or end the name.
+    /// Only a name followed by a parenthesis is read this way, so with <c>-</c> allowed,
+    /// <c>a-b(1)</c> calls <c>a-b</c> while <c>a-b</c> and <c>a - b(1)</c> remain subtractions.
+    /// </summary>
+    public string FunctionNameCharacters { get; init; } = string.Empty;
+
+    /// <summary>
     /// Gets the default parsed floating point number type.
     /// </summary>
     public FloatingPointNumberType FloatingPointNumberType { get; init; } = FloatingPointNumberType.Double;

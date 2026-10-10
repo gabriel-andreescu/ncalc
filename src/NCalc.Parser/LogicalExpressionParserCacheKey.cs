@@ -3,6 +3,7 @@ namespace NCalc;
 internal readonly record struct LogicalExpressionParserCacheKey(
     bool AllowCharValues,
     bool DisallowSingleEquals,
+    string FunctionNameCharacters,
     FloatingPointNumberType FloatingPointNumberType,
     IntegerNumberType IntegerNumberType,
     ArgumentSeparator ArgumentSeparator,
@@ -12,6 +13,7 @@ internal readonly record struct LogicalExpressionParserCacheKey(
         : this(
             options.AllowCharValues,
             options.DisallowSingleEquals,
+            options.FunctionNameCharacters,
             options.FloatingPointNumberType,
             options.IntegerNumberType,
             options.ArgumentSeparator,

@@ -77,7 +77,7 @@ public static class LogicalExpressionParser
     /// <returns>A new parser configured with the specified options.</returns>
     private static Parser<LogicalExpression> CreateExpressionParser(LogicalExpressionParserOptions options, CultureInfo cultureInfo)
     {
-        return CreateExpressionParser(cultureInfo, GetSeparatorChars(options.ArgumentSeparator), options.DisallowSingleEquals);
+        return CreateExpressionParser(cultureInfo, GetSeparatorChars(options.ArgumentSeparator), options.DisallowSingleEquals, options.FunctionNameCharacters);
     }
 
     private static Parser<LogicalExpression> CreateStringValueParser(char quote, bool allowCharValues)
@@ -120,7 +120,7 @@ public static class LogicalExpressionParser
             });
     }
 
-    private static Parser<LogicalExpression> CreateExpressionParser(CultureInfo cultureInfo, char[] argumentSeparator, bool disallowSingleEquals)
+    private static Parser<LogicalExpression> CreateExpressionParser(CultureInfo cultureInfo, char[] argumentSeparator, bool disallowSingleEquals, string functionNameCharacters)
     {
         /*
          * Grammar:
@@ -291,7 +291,12 @@ public static class LogicalExpressionParser
 
         var list = OneOf(emptyList, populatedList);
 
-        var function = identifier
+        var functionName = functionNameCharacters.Length == 0
+            ? identifier
+            : Terms.Identifier(extraPart: c => functionNameCharacters.IndexOf(c) >= 0)
+                .When((_, name) => functionNameCharacters.IndexOf(name.Span[name.Length - 1]) < 0);
+
+        var function = functionName
             .And(list)
             .Then<LogicalExpression>(static x =>
                 new Function(new Identifier(x.Item1.ToString()!), (LogicalExpressionList)x.Item2));
