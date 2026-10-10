@@ -251,6 +251,29 @@ public class ParserTests
     }
 
     [Test]
+    [Arguments("truex()", "truex")]
+    [Arguments("falsey(1)", "falsey")]
+    public async Task ShouldCallFunctionNamesStartingWithBooleanLiterals(string source, string name)
+    {
+        var expression = new Expression(source, CultureInfo.InvariantCulture);
+        expression.EvaluateFunction += (called, args) => args.Result = called;
+
+        await Assert.That(expression.Evaluate(CancellationToken.None)).IsEqualTo(name);
+    }
+
+    [Test]
+    [Arguments("true.x()", "true.x")]
+    [Arguments("false-y.z()", "false-y.z")]
+    public async Task ShouldCallQualifiedFunctionNamesStartingWithBooleanLiterals(string source, string name)
+    {
+        var options = new LogicalExpressionParserOptions { FunctionNameCharacters = ".-" };
+        var expression = new Expression(LogicalExpressionFactory.Create(source, options, cancellationToken: CancellationToken.None));
+        expression.EvaluateFunction += (called, args) => args.Result = called;
+
+        await Assert.That(expression.Evaluate(CancellationToken.None)).IsEqualTo(name);
+    }
+
+    [Test]
     [Arguments("a-b")]
     [Arguments("a-(b)")]
     [Arguments("a - b")]

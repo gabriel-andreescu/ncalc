@@ -439,11 +439,11 @@ public static class LogicalExpressionParser
             hexOctBinNumber,
             integralNumber,
             decimalOrDoubleNumber,
+            function,
             booleanTrue,
             booleanFalse,
             dateTime,
             stringValue,
-            function,
             groupExpression,
             identifierExpression,
             list);
